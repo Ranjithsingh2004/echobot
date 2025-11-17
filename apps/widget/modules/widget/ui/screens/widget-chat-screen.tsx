@@ -34,6 +34,7 @@ import {
 } from "@workspace/ui/components/ai/message";
 import { AIResponse } from "@workspace/ui/components/ai/response";
 import { AISuggestions, AISuggestion } from "@workspace/ui/components/ai/suggestion";
+import { Value } from "convex/values";
 
 const formSchema = z.object({
   message: z.string().min(1,"Message is required"),
@@ -166,7 +167,7 @@ export const WidgetChatScreen = () => {
               >
                 <AIMessageContent>
                   <AIResponse>
-                    {message.content}
+                    {(message as any).content}
                   </AIResponse>
                 </AIMessageContent>
 
