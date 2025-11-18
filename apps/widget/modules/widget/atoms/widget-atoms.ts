@@ -15,3 +15,12 @@ export const contactSessionIdAtomFamily = atomFamily((organizationId: string) =>
         null)
 });
 export const conversationIdAtom = atom<Id<"conversations"> | null>(null);
+
+/**
+ * Vapi Secrets Atom
+ * Stores the Vapi public API key loaded from organization secrets
+ * Populated during widget initialization in loading screen
+ */
+export const vapiSecretsAtom = atom<{
+  publicApiKey: string;
+} | null>(null);
