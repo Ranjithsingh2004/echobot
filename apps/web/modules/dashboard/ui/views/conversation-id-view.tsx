@@ -7,7 +7,9 @@ import { api } from "@workspace/backend/_generated/api";
 import { Id } from "@workspace/backend/_generated/dataModel";
 import { Button } from "@workspace/ui/components/button";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { MoreHorizontal , MoreHorizontalIcon, Wand2Icon} from "lucide-react";
+import { MoreHorizontal , MoreHorizontalIcon, Wand2Icon, UserIcon} from "lucide-react";
+import { Sheet, SheetContent, SheetTitle } from "@workspace/ui/components/sheet";
+import { ContactPanel } from "../components/contact-panel";
 import {
   AIConversation,
   AIConversationContent,
@@ -50,6 +52,8 @@ export const ConversationIdView = ({
 }: {
   conversationId: Id<"conversations">,
 }) => {
+  const [showContactPanel, setShowContactPanel] = useState(false);
+
   const conversation = useQuery(api.private.conversations.getOne, {
     conversationId,
   });
@@ -178,22 +182,24 @@ const handleEnhanceResponse = async () => {
 
 
   return (
+    <>
     <div className="flex h-full flex-col bg-muted">
     <header className="flex items-center justify-between border-b bg-background p-2.5">
         <Button
             size="sm"
             variant="ghost"
+            onClick={() => setShowContactPanel(true)}
         >
-            <MoreHorizontalIcon />
+            <UserIcon />
         </Button>
         {!!conversation &&(
         <ConversationStatusButton
           onClick = {handleToggleStatus}
           status={conversation?.status}
           disabled = {isUpdatingStatus}
-          
 
-        
+
+
         />
         )}
     </header>
@@ -314,6 +320,13 @@ const handleEnhanceResponse = async () => {
 
     </div>
 
+    <Sheet open={showContactPanel} onOpenChange={setShowContactPanel}>
+      <SheetContent className="w-full sm:max-w-md p-0" aria-describedby={undefined}>
+        <SheetTitle className="sr-only">Contact Information</SheetTitle>
+        <ContactPanel conversationId={conversationId} />
+      </SheetContent>
+    </Sheet>
+    </>
   );
 };
 

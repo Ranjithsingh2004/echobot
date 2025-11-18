@@ -10,6 +10,7 @@
 
 import type * as lib_extractTextContent from "../lib/extractTextContent.js";
 import type * as lib_secrets from "../lib/secrets.js";
+import type * as private_contact from "../private/contact.js";
 import type * as private_conversations from "../private/conversations.js";
 import type * as private_files from "../private/files.js";
 import type * as private_knowledgeBase from "../private/knowledgeBase.js";
@@ -54,6 +55,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   "lib/extractTextContent": typeof lib_extractTextContent;
   "lib/secrets": typeof lib_secrets;
+  "private/contact": typeof private_contact;
   "private/conversations": typeof private_conversations;
   "private/files": typeof private_files;
   "private/knowledgeBase": typeof private_knowledgeBase;
