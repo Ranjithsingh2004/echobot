@@ -82,8 +82,8 @@ export const WidgetSelectionScreen = () => {
           onClick={handleNewConversation}
           disabled={isPending}
 
-          
-        
+
+
         >
           <div className="flex items-center gap-x-2">
             <MessageSquareTextIcon className="size-4" />
@@ -92,11 +92,11 @@ export const WidgetSelectionScreen = () => {
           <ChevronRightIcon />
         </Button>
 
-        
+
       </div>
       <WidgetFooter/>
 
-      
+
     </>
   )
 }

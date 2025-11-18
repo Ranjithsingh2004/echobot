@@ -35,6 +35,7 @@ import {
 import { AIResponse } from "@workspace/ui/components/ai/response";
 import { AISuggestions, AISuggestion } from "@workspace/ui/components/ai/suggestion";
 import { Value } from "convex/values";
+import { useWidgetSettings } from "@/modules/widget/hooks/use-widget-settings";
 
 const formSchema = z.object({
   message: z.string().min(1,"Message is required"),
@@ -46,14 +47,17 @@ const formSchema = z.object({
 
 export const WidgetChatScreen = () => {
   const setScreen = useSetAtom(screenAtom);
-  const setConversationId = useSetAtom(conversationIdAtom); 
+  const setConversationId = useSetAtom(conversationIdAtom);
   const conversationId = useAtomValue(conversationIdAtom);
   const organizationId = useAtomValue(organizationIdAtom);
   const contactSessionId = useAtomValue(
     contactSessionIdAtomFamily(organizationId || "")
   );
 
-   const onBack = () => {
+  // Fetch widget settings for greeting and suggestions
+  const widgetSettings = useWidgetSettings(organizationId || undefined);
+
+  const onBack = () => {
     setConversationId(null);
     setScreen("selection");
   };
@@ -79,11 +83,20 @@ export const WidgetChatScreen = () => {
       { initialNumItems: 10 },
     );
 
-    const { topElementRef, handleLoadMore, canLoadMore, isLoadingMore } = useInfiniteScroll({
-      status: messages.status,
-      loadMore: messages.loadMore,
-      loadSize: 10
-    });
+  // Get suggestions as array, filtering out undefined values
+  const suggestions = widgetSettings?.defaultSuggestions
+    ? [
+        widgetSettings.defaultSuggestions.suggestion1,
+        widgetSettings.defaultSuggestions.suggestion2,
+        widgetSettings.defaultSuggestions.suggestion3,
+      ].filter((s): s is string => !!s)
+    : [];
+
+  const { topElementRef, handleLoadMore, canLoadMore, isLoadingMore } = useInfiniteScroll({
+    status: messages.status,
+    loadMore: messages.loadMore,
+    loadSize: 10
+  });
 
 
 
@@ -109,6 +122,12 @@ export const WidgetChatScreen = () => {
       prompt: values.message,
       contactSessionId,
     });
+  };
+
+  // Handler for suggestion clicks
+  const handleSuggestionClick = (suggestion: string) => {
+    form.setValue("message", suggestion);
+    form.handleSubmit(onSubmit)();
   };
 
 
@@ -159,7 +178,10 @@ export const WidgetChatScreen = () => {
             ref={topElementRef}
           />
 
-          {toUIMessages(messages.results ?? [])?.map((message) => {
+          {toUIMessages(messages.results ?? [])?.map((message, index) => {
+            // Check if this is the first message (greeting message)
+            const isFirstMessage = index === 0;
+            const showSuggestions = isFirstMessage && suggestions.length > 0;
             return (
               <AIMessage
                 from={message.role === "user" ? "user" : "assistant"}
@@ -169,6 +191,18 @@ export const WidgetChatScreen = () => {
                   <AIResponse>
                     {(message as any).content}
                   </AIResponse>
+                  {/* Show suggestions on the first assistant message (greeting) */}
+                  {showSuggestions && message.role === "assistant" && (
+                    <AISuggestions>
+                      {suggestions.map((suggestion, suggestionIndex) => (
+                        <AISuggestion
+                          key={suggestionIndex}
+                          suggestion={suggestion}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        />
+                      ))}
+                    </AISuggestions>
+                  )}
                 </AIMessageContent>
 
                 {message.role === "assistant" && (

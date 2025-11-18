@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "convex/react";
@@ -57,34 +58,36 @@ export const WidgetSettingsForm = () => {
   const form = useForm<WidgetSettingsFormData>({
     resolver: zodResolver(widgetSettingsSchema),
     defaultValues: {
-      greetMessage: existingSettings?.greetMessage || "",
+      greetMessage: existingSettings?.greetMessage ?? "Hello! How can I help you today?",
       defaultSuggestions: {
-        suggestion1: existingSettings?.defaultSuggestions?.suggestion1 || "",
-        suggestion2: existingSettings?.defaultSuggestions?.suggestion2 || "",
-        suggestion3: existingSettings?.defaultSuggestions?.suggestion3 || "",
+        suggestion1: existingSettings?.defaultSuggestions?.suggestion1 ?? "",
+        suggestion2: existingSettings?.defaultSuggestions?.suggestion2 ?? "",
+        suggestion3: existingSettings?.defaultSuggestions?.suggestion3 ?? "",
       },
       vapiSettings: {
-        assistantId: existingSettings?.vapiSettings?.assistantId || "",
-        phoneNumber: existingSettings?.vapiSettings?.phoneNumber || "",
+        assistantId: existingSettings?.vapiSettings?.assistantId ?? "",
+        phoneNumber: existingSettings?.vapiSettings?.phoneNumber ?? "",
       },
     },
   });
 
   // Update form values when settings are loaded
-  if (existingSettings && !form.formState.isDirty) {
-    form.reset({
-      greetMessage: existingSettings.greetMessage,
-      defaultSuggestions: {
-        suggestion1: existingSettings.defaultSuggestions?.suggestion1 || "",
-        suggestion2: existingSettings.defaultSuggestions?.suggestion2 || "",
-        suggestion3: existingSettings.defaultSuggestions?.suggestion3 || "",
-      },
-      vapiSettings: {
-        assistantId: existingSettings.vapiSettings?.assistantId || "",
-        phoneNumber: existingSettings.vapiSettings?.phoneNumber || "",
-      },
-    });
-  }
+  useEffect(() => {
+    if (existingSettings !== undefined && !form.formState.isDirty) {
+      form.reset({
+        greetMessage: existingSettings?.greetMessage ?? "Hello! How can I help you today?",
+        defaultSuggestions: {
+          suggestion1: existingSettings?.defaultSuggestions?.suggestion1 ?? "",
+          suggestion2: existingSettings?.defaultSuggestions?.suggestion2 ?? "",
+          suggestion3: existingSettings?.defaultSuggestions?.suggestion3 ?? "",
+        },
+        vapiSettings: {
+          assistantId: existingSettings?.vapiSettings?.assistantId ?? "",
+          phoneNumber: existingSettings?.vapiSettings?.phoneNumber ?? "",
+        },
+      });
+    }
+  }, [existingSettings, form]);
 
   // Handle form submission
   const onSubmit = async (data: WidgetSettingsFormData) => {

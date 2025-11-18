@@ -28,6 +28,27 @@ export default defineSchema({
         .index("by_organization_id", ["organizationId"])
        .index("by_organization_id_and_service", ["organizationId", "service"]),
 
+    // Knowledge Base for RAG Integration (uses Google Gemini embeddings - 3072 dimensions)
+    knowledgeBase: defineTable({
+        organizationId: v.string(),
+        title: v.string(),
+        content: v.string(),
+        mimeType: v.string(),
+        fileName: v.string(),
+        embedUrl: v.optional(v.string()),
+        storageId: v.optional(v.id("_storage")),
+        embedding: v.optional(v.array(v.float64())),
+        createdAt: v.number(),
+        updatedAt: v.optional(v.number()),
+    })
+    .index("by_organization_id", ["organizationId"])
+    .index("by_created_at", ["createdAt"])
+    .vectorIndex("by_embedding", {
+        vectorField: "embedding",
+        dimensions: 3072,
+        filterFields: ["organizationId"]
+    }),
+
 
 
 
