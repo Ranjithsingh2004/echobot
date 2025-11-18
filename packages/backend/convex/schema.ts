@@ -4,6 +4,12 @@ export default defineSchema({
 
     widgetSettings: defineTable({
   organizationId: v.string(),
+  // Visual customization
+  theme: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("system"))),
+  icon: v.optional(v.string()),
+  title: v.optional(v.string()),
+  visibility: v.optional(v.boolean()),
+  // Conversational customization
   greetMessage: v.string(),
   defaultSuggestions: v.object({
     suggestion1: v.optional(v.string()),

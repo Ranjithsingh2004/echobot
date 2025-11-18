@@ -2,9 +2,19 @@ import { z } from "zod";
 
 /**
  * Zod schema for widget settings form validation
- * Validates greeting message, default suggestions, and VAPI settings
+ * Validates visual customization, greeting message, default suggestions, and VAPI settings
  */
 export const widgetSettingsSchema = z.object({
+  // Visual customization
+  theme: z.enum(["light", "dark", "system"]).optional(),
+  icon: z.string().optional().or(z.literal("")),
+  title: z
+    .string()
+    .max(50, "Title must be less than 50 characters")
+    .optional()
+    .or(z.literal("")),
+  visibility: z.boolean().optional(),
+
   // Greeting message is required and cannot be empty
   greetMessage: z
     .string()

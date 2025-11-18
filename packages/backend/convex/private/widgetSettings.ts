@@ -32,6 +32,12 @@ export const getOne = query({
 
 export const upsert = mutation({
   args: {
+    // Visual customization
+    theme: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("system"))),
+    icon: v.optional(v.string()),
+    title: v.optional(v.string()),
+    visibility: v.optional(v.boolean()),
+    // Conversational customization
     greetMessage: v.string(),
     defaultSuggestions: v.object({
       suggestion1: v.optional(v.string()),
@@ -76,6 +82,10 @@ export const upsert = mutation({
 
     if (existingSettings) {
       await ctx.db.patch(existingSettings._id, {
+        theme: args.theme,
+        icon: args.icon,
+        title: args.title,
+        visibility: args.visibility,
         greetMessage: args.greetMessage,
         defaultSuggestions: args.defaultSuggestions,
         vapiSettings: args.vapiSettings,
@@ -85,6 +95,10 @@ export const upsert = mutation({
     } else {
       const newSettingsId = await ctx.db.insert("widgetSettings", {
         organizationId: orgId,
+        theme: args.theme ?? "system",
+        icon: args.icon,
+        title: args.title ?? "Support Chat",
+        visibility: args.visibility ?? true,
         greetMessage: args.greetMessage,
         defaultSuggestions: args.defaultSuggestions,
         vapiSettings: args.vapiSettings,

@@ -58,6 +58,10 @@ export const WidgetSettingsForm = () => {
   const form = useForm<WidgetSettingsFormData>({
     resolver: zodResolver(widgetSettingsSchema),
     defaultValues: {
+      theme: existingSettings?.theme ?? "system",
+      icon: existingSettings?.icon ?? "",
+      title: existingSettings?.title ?? "Support Chat",
+      visibility: existingSettings?.visibility ?? true,
       greetMessage: existingSettings?.greetMessage ?? "Hello! How can I help you today?",
       defaultSuggestions: {
         suggestion1: existingSettings?.defaultSuggestions?.suggestion1 ?? "",
@@ -75,6 +79,10 @@ export const WidgetSettingsForm = () => {
   useEffect(() => {
     if (existingSettings !== undefined && !form.formState.isDirty) {
       form.reset({
+        theme: existingSettings?.theme ?? "system",
+        icon: existingSettings?.icon ?? "",
+        title: existingSettings?.title ?? "Support Chat",
+        visibility: existingSettings?.visibility ?? true,
         greetMessage: existingSettings?.greetMessage ?? "Hello! How can I help you today?",
         defaultSuggestions: {
           suggestion1: existingSettings?.defaultSuggestions?.suggestion1 ?? "",

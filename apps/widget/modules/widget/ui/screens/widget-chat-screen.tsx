@@ -36,6 +36,10 @@ import { AIResponse } from "@workspace/ui/components/ai/response";
 import { AISuggestions, AISuggestion } from "@workspace/ui/components/ai/suggestion";
 import { Value } from "convex/values";
 import { useWidgetSettings } from "@/modules/widget/hooks/use-widget-settings";
+import { useVapi } from "@/modules/widget/hooks/use-vapi";
+import { VoiceMicrophoneButton } from "@/modules/widget/ui/components/voice-microphone-button";
+import { VoiceStatusBanner } from "@/modules/widget/ui/components/voice-status-banner";
+import { VoiceTranscriptMessage } from "@/modules/widget/ui/components/voice-transcript-message";
 
 const formSchema = z.object({
   message: z.string().min(1,"Message is required"),
@@ -57,7 +61,23 @@ export const WidgetChatScreen = () => {
   // Fetch widget settings for greeting and suggestions
   const widgetSettings = useWidgetSettings(organizationId || undefined);
 
+  // Initialize Vapi for voice support
+  const {
+    isConfigured: isVapiConfigured,
+    isConnected: isVoiceCallActive,
+    isConnecting: isVoiceCallConnecting,
+    isSpeaking: isAssistantSpeaking,
+    transcript: voiceTranscript,
+    startCall: startVoiceCall,
+    endCall: endVoiceCall,
+    error: vapiError,
+  } = useVapi();
+
   const onBack = () => {
+    // End voice call if active when navigating away
+    if (isVoiceCallActive) {
+      endVoiceCall();
+    }
     setConversationId(null);
     setScreen("selection");
   };
@@ -101,7 +121,6 @@ export const WidgetChatScreen = () => {
 
 
 
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -130,17 +149,31 @@ export const WidgetChatScreen = () => {
     form.handleSubmit(onSubmit)();
   };
 
+  // Handler for voice toggle
+  const handleVoiceToggle = () => {
+    if (isVoiceCallActive) {
+      endVoiceCall();
+    } else {
+      startVoiceCall();
+    }
+  };
 
+  // Determine voice status for banner
+  const getVoiceStatus = ():
+    | "connecting"
+    | "listening"
+    | "speaking"
+    | "error"
+    | null => {
+    if (vapiError) return "error";
+    if (isVoiceCallConnecting) return "connecting";
+    if (isAssistantSpeaking) return "speaking";
+    if (isVoiceCallActive) return "listening";
+    return null;
+  };
 
+  const voiceStatus = getVoiceStatus();
 
-
-
-
-
-
-
-
- 
 
 
   return (
@@ -151,14 +184,14 @@ export const WidgetChatScreen = () => {
             size ="icon"
             variant="transparent"
             onClick={onBack}
-          
+
           >
             <ArrowLeft />
 
 
           </Button>
           <p>Chat</p>
-            
+
 
         </div>
         <Button
@@ -167,8 +200,18 @@ export const WidgetChatScreen = () => {
         >
           <MenuIcon />
         </Button>
-        
+
       </WidgetHeader>
+
+      {/* Voice Status Banner - shown when voice call is active */}
+      {voiceStatus && (
+        <VoiceStatusBanner
+          status={voiceStatus}
+          message={vapiError || undefined}
+          onEndCall={isVoiceCallActive ? endVoiceCall : undefined}
+        />
+      )}
+
       <AIConversation>
         <AIConversationContent>
           <InfiniteScrollTrigger
@@ -178,6 +221,7 @@ export const WidgetChatScreen = () => {
             ref={topElementRef}
           />
 
+          {/* Regular chat messages */}
           {toUIMessages(messages.results ?? [])?.map((message, index) => {
             // Check if this is the first message (greeting message)
             const isFirstMessage = index === 0;
@@ -218,6 +262,16 @@ export const WidgetChatScreen = () => {
               </AIMessage>
             );
           })}
+
+          {/* Voice transcript messages - displayed in chat */}
+          {voiceTranscript.map((transcriptMsg, index) => (
+            <VoiceTranscriptMessage
+              key={`voice-${index}`}
+              role={transcriptMsg.role}
+              text={transcriptMsg.text}
+              timestamp={transcriptMsg.timestamp}
+            />
+          ))}
         </AIConversationContent>
     </AIConversation>
 
@@ -249,13 +303,22 @@ export const WidgetChatScreen = () => {
               />
 
 
-            
-            
+
+
           )}
         />
 
         <AIInputToolbar>
-          <AIInputTools />
+          <AIInputTools>
+            {/* Voice microphone button - only shown if Vapi is configured */}
+            {isVapiConfigured && (
+              <VoiceMicrophoneButton
+                isRecording={isVoiceCallActive}
+                isDisabled={conversation?.status === "resolved"}
+                onToggle={handleVoiceToggle}
+              />
+            )}
+          </AIInputTools>
           <AIInputSubmit
             disabled={conversation?.status === "resolved" || !form.formState.isValid}
             status="ready"
@@ -269,7 +332,7 @@ export const WidgetChatScreen = () => {
 
 
 
-      
+
     </>
   )
 }

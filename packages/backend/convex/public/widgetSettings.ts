@@ -35,6 +35,10 @@ export const getByOrganizationId = query({
     // If no settings found, return default values
     if (!widgetSettings) {
       return {
+        theme: "system" as const,
+        icon: undefined,
+        title: "Support Chat",
+        visibility: true,
         greetMessage: "Hello! How can I help you today?",
         defaultSuggestions: {
           suggestion1: undefined,
@@ -50,6 +54,10 @@ export const getByOrganizationId = query({
 
     // Return only the necessary fields for the widget
     return {
+      theme: widgetSettings.theme ?? "system",
+      icon: widgetSettings.icon,
+      title: widgetSettings.title ?? "Support Chat",
+      visibility: widgetSettings.visibility ?? true,
       greetMessage: widgetSettings.greetMessage,
       defaultSuggestions: widgetSettings.defaultSuggestions,
       vapiSettings: widgetSettings.vapiSettings,
