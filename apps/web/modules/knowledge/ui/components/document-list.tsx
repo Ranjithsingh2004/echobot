@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
-import { Id } from "@workspace/backend/convex/_generated/dataModel";
+import { Id } from "@workspace/backend/convex/_generated/dataModel.d.ts";
 import { toast } from "sonner";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";

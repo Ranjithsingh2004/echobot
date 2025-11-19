@@ -30,5 +30,8 @@
       "@ai-sdk/google": "1.2.22",
       "@convex-dev/workpool": "0.2.14"
     }
+  },
+  "dependencies": {
+    "minimatch": "^10.1.1"
   }
 }
